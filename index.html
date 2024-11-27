@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD API Interface</title>
+</head>
+<style>
+/* General styling */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    color: #333;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    animation: fadeIn 1s ease-in;
+}
+
+/* Form Styling */
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+form:hover {
+    transform: scale(1.02);
+}
+
+input, button {
+    width: 100%;
+    padding: 8px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #28a745;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+/* Table Styling */
+table {
+    width: 80%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+tr:hover td {
+    background-color: #f1f1f1;
+}
+
+/* Button Styling */
+#loadData {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#loadData:hover {
+    background-color: #0056b3;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+</style>
+<body>
+    <h1>CRUD API Interface</h1>
+
+    <h2>Create New User</h2>
+    <form id="createForm">
+        <input type="number" id="id" placeholder="ID" required>
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="number" id="age" placeholder="Age" required>
+        <button type="submit">Create User</button>
+    </form>
+
+    <h2>Update User</h2>
+    <form id="updateForm">
+        <input type="number" id="updateId" placeholder="ID" required>
+        <input type="text" id="updateName" placeholder="Name" required>
+        <input type="number" id="updateAge" placeholder="Age" required>
+        <button type="submit">Update User</button>
+    </form>
+
+    <h2>Delete User</h2>
+    <form id="deleteForm">
+        <input type="number" id="deleteId" placeholder="ID" required>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <h2>User Data</h2>
+    <button id="loadData">Load Data</button>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        // Fetch and display data
+        document.getElementById('loadData').addEventListener('click', async () => {
+            const response = await fetch('/api/data');
+            const data = await response.json();
+            const table = document.querySelector('#dataTable tbody');
+            table.innerHTML = ''; // Clear existing rows
+            data.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${user.id}</td><td>${user.name}</td><td>${user.age}</td>`;
+                table.appendChild(row);
+            });
+        });
+
+        // Create user
+        document.getElementById('createForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = {
+                id: document.getElementById('id').value,
+                name: document.getElementById('name').value,
+                age: document.getElementById('age').value
+            };
+            const response = await fetch('/api/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            });
+            alert('User Created');
+            document.getElementById('loadData').click(); // Reload data
+        });
+
+        // Update user
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = {
+                id: document.getElementById('updateId').value,
+                name: document.getElementById('updateName').value,
+                age: document.getElementById('updateAge').value
+            };
+            await fetch('/api/data', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            });
+            alert('User Updated');
+            document.getElementById('loadData').click(); // Reload data
+        });
+
+        // Delete user
+        document.getElementById('deleteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = {
+                id: document.getElementById('deleteId').value
+            };
+            await fetch('/api/data', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            });
+            alert('User Deleted');
+            document.getElementById('loadData').click(); // Reload data
+        });
+    </script>
+</body>
+</html>
